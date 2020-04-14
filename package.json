@@ -1,0 +1,17 @@
+{
+  "name": "crypto-alert-telegram-bot",
+  "version": "1.0.0",
+  "description": "A open-source Telegram bot that you can create and manage alerts about the cryptocurrency world.",
+  "author": "gilsonmandalogo",
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/gilsonmandalogo/crypto-alert-telegram-bot.git",
+    "type": "public"
+  },
+  "scripts": {
+    "deploy": "cd functions && yarn deploy"
+  },
+  "devDependencies": {
+    "firebase-tools": "^8.0.3"
+  }
+}
