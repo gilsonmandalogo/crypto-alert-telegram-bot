@@ -1,10 +1,11 @@
+import * as ccxt from 'ccxt';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import * as exchangePool from './exchangePool';
 import * as globals from './globals';
+import * as secrets from './secrets';
 import * as types from './types';
 import * as utils from './utils';
-import * as secrets from './secrets';
 
 const runtimeOptions: functions.RuntimeOptions = {
   maxInstances: 3,
@@ -18,7 +19,7 @@ const HELP = `Possible commands:
 
 /help — Display this help.
 /donate — Makes his creator happy 🙂.
-/now {pair} — Display the current price of given pair. E.g. /now btc/eur
+/now {pair} {exchange} — Display the current price of given pair. E.g. /now btc/eur binance
 /setalert — Creates a new alert.
 /myalerts — Display all your alerts.
 /deletealert — Deletes a alert.`;
@@ -37,8 +38,6 @@ const CALLBACKS = {
   donateLtc: "donateLtc",
 };
 
-const DEFAULT_EXCHANGE = "binance";
-
 const MESSAGES_REPLY = {
   priceAlertPair: "Price alert 1/4: Which pair?",
   priceAlertPrice: (pair: string) => `Price alert 2/4\nPair: ${pair}\nWhich price?`,
@@ -54,6 +53,13 @@ function findMessageSection(msg: string, section: string) {
   section += ": ";
   const index = msg.indexOf(section) + section.length;
   return msg.substring(index, msg.indexOf("\n", index));
+}
+
+function parseFirstCommandString(receivedMsg: string) {
+  const firstSpaceIndex = receivedMsg.indexOf(' ');
+  const first = firstSpaceIndex === -1 ? receivedMsg.trim() : receivedMsg.substring(0, firstSpaceIndex).trim();
+  const second = firstSpaceIndex === -1 ? '' : receivedMsg.substring(firstSpaceIndex +1).trim();
+  return [first, second];
 }
 
 function isTelegramMessage(req: functions.https.Request) {
@@ -90,8 +96,15 @@ function replyWithPhoto(res: functions.Response, chat_id: string, photo: string,
   });
 }
 
-async function now(symbol: string) {
-  const exchange = exchangePool.getExchange(DEFAULT_EXCHANGE);
+async function now(symbol: string, exchangeName: string) {
+  let exchange: ccxt.Exchange;
+
+  try {
+    exchange = exchangePool.getExchange(exchangeName);
+  } catch (e) {
+    return e.message;
+  }
+
   await exchange.loadMarkets();
   symbol = symbol.toUpperCase();
 
@@ -145,7 +158,7 @@ export const receiveMessage = functions.region('europe-west3').runWith(runtimeOp
       const chatsSnap = await chatsRef.get();
 
       if (chatsSnap.exists) {
-        const receivedMsg = req.body.message.text.toLowerCase().trim();
+        const receivedMsg = req.body.message.text.toLowerCase().trim() as string;
 
         if (isTelegramMessageReply(req)) {
           const text = req.body.message.reply_to_message.text;
@@ -188,21 +201,28 @@ export const receiveMessage = functions.region('europe-west3').runWith(runtimeOp
           return reply(res, chatId, replyMsg, replyMarkup);
         }
 
-        const firstSpaceIndex = receivedMsg.indexOf(' ');
-        const command = receivedMsg.includes(' ') ? receivedMsg.substring(0, firstSpaceIndex) : receivedMsg;
-        const rest = firstSpaceIndex === -1 ? '' : receivedMsg.substring(firstSpaceIndex +1);
+        const [command, rest] = parseFirstCommandString(receivedMsg);
 
         switch (command) {
           case '/help':
             replyMsg = HELP;
             break;
           case '/now':
-            if (rest.length < 1) {
-              replyMsg = `/now command needs 1 argument. ${HELP}`;
+            const [symbol, exchange] = parseFirstCommandString(rest);
+
+            if (symbol.length === 0 || exchange.length === 0) {
+              replyMsg = `/now command needs 2 arguments. ${HELP}`;
               break;
             }
 
-            replyMsg = await now(rest);
+            replyMsg = await now(symbol, exchange);
+            replyMarkup = {
+              keyboard: [[{
+                text: receivedMsg,
+                selective: true,
+                resize_keyboard: true,
+              }]],
+            };
             break;
           case '/setalert':
             replyMsg = 'What kind of alert?';
