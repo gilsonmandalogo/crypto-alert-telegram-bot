@@ -24,7 +24,7 @@ const HELP = `Possible commands:
 /myalerts — Display all your alerts.
 /deletealert — Deletes a alert.`;
 
-const DONATE_MSG = `Thank you, I really appreciate your help to main my services running.
+const DONATE_MSG = `Thank you, I really appreciate your help to maintain my services running.
 What currency do you want to transfer?`;
 
 const CALLBACKS = {
