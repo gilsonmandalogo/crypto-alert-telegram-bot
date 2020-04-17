@@ -12,6 +12,6 @@
     "deploy": "cd functions && yarn deploy"
   },
   "devDependencies": {
-    "firebase-tools": "^8.0.3"
+    "firebase-tools": "^8.1.0"
   }
 }
