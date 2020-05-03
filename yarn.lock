@@ -1287,10 +1287,10 @@ finalhandler@1.1.2, finalhandler@~1.1.2:
     statuses "~1.5.0"
     unpipe "~1.0.0"
 
-firebase-tools@^8.1.0:
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/firebase-tools/-/firebase-tools-8.1.0.tgz#f26ca42a4bf13a21281a2350bd210a9ea3aee2b6"
-  integrity sha512-HHoWDypaYMQPWMHVSFathW2eDa6fvQNP7JcnpdZEPrNlOiw/xOHnc98R1ak+usar6OAEwW9uHkBXSG2V/wK+kA==
+firebase-tools@^8.2.0:
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/firebase-tools/-/firebase-tools-8.2.0.tgz#2f12c27b03338a38c8d9ac91267f88eec0a39459"
+  integrity sha512-xcivJPhoOGJUR6Z1XDUVQ9TLD8wmlTrZ6rDunK1MIRn5+KU4vsn8x1oF9Zxri65/ViRralHmX/kBUx0MnIJKWA==
   dependencies:
     "@google-cloud/pubsub" "^1.7.0"
     JSONStream "^1.2.1"
