@@ -67,7 +67,7 @@ export const alerts = functions.region('europe-west3').runWith(runtimeOptions).p
     const firstOhlcv = ohlcv[0];
 
     if (alert.direction === 'above') {
-      const high = firstOhlcv[1];
+      const high = firstOhlcv[2];
 
       if (high >= alert.price) {
         await triggerAlert(high);
@@ -76,7 +76,7 @@ export const alerts = functions.region('europe-west3').runWith(runtimeOptions).p
     }
 
     if (alert.direction === 'below') {
-      const low = firstOhlcv[2];
+      const low = firstOhlcv[3];
 
       if (low <= alert.price) {
         await triggerAlert(low);
