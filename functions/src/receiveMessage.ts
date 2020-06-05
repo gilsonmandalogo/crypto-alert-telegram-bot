@@ -111,7 +111,8 @@ async function now(symbol: string, exchangeName: string) {
   if (exchange.symbols.includes(symbol)) {
     const ticker = await exchange.fetchTicker(symbol);
     const currency = utils.extractSencondPartSymbol(symbol);
-    return `${ticker.last?.toString()} ${currency}`;
+    return `${ticker.last?.toString()} ${currency}\n` +
+      `24h Change: ${ticker.change} ${currency} (${ticker.percentage}%)`;
   }
 
   return `Unknown pair: ${symbol}`;
@@ -128,7 +129,9 @@ If I was useful to you, please consider a donation to his creator at /donate com
 
 export const receiveMessage = functions.region('europe-west3').runWith(runtimeOptions).https.onRequest(async (req, res) => {
   try {
-    if (req.params[0].substring(1) !== secrets.telegramBotToken) {
+    // On emulator req.params[0] starts with /
+    const paramToken = process.env.FUNCTIONS_EMULATOR ? req.params[0].substring(1) : req.params[0];
+    if (paramToken !== secrets.telegramBotToken) {
       console.log(`Unauthorized access from ${req.ip}`);
       return res.sendStatus(403);
     }
